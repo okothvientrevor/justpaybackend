@@ -630,4 +630,14 @@ router.get('/reauth', (req, res) => {
   });
 });
 
+// Test backend connectivity
+router.get('/test-connection', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Backend is connected and running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 module.exports = router;
