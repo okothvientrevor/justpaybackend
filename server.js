@@ -17,7 +17,8 @@ app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || [
     'http://localhost:3000',
     'http://localhost:8080',
-    'https://your-flutter-app.com'
+    'https://your-flutter-app.com',
+    'https://justpay-backend-production.up.railway.app' // Railway URL
   ],
   credentials: true
 }));
