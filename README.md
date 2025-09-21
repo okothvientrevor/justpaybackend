@@ -1,16 +1,18 @@
 # JustPay Backend
 
-A Node.js backend service that integrates with Stripe for payment link generation, designed to work seamlessly with Flutter mobile applications.
+A Node.js backend service that integrates with Stripe for payment processing, designed specifically for **landlord-tenant rent payments** using Stripe Connect. Perfect for Flutter mobile applications.
 
 ## Features
 
 - 🚀 **Express.js Server** - Fast and lightweight web framework
-- 💳 **Stripe Integration** - Generate and manage payment links
+- 💳 **Stripe Connect Integration** - Multi-party payments (rent goes directly to landlords)
+- 🏠 **Landlord-Tenant System** - Complete rent payment workflow
 - 📱 **Flutter Ready** - CORS-enabled API endpoints for mobile apps
 - 🔒 **Security First** - Helmet middleware and environment-based configuration
 - 📊 **Request Logging** - Morgan middleware for request tracking
 - ✅ **Input Validation** - Comprehensive request validation
 - 🔄 **Error Handling** - Proper HTTP status codes and error messages
+- 💰 **Platform Fees** - Configurable application fees for your platform
 
 ## Quick Start
 
@@ -59,45 +61,75 @@ A Node.js backend service that integrates with Stripe for payment link generatio
 ### Health Check
 - **GET** `/health` - Server health status
 
-### Payment Management
+### Landlord-Tenant Payment System
 
-#### Create Payment Link
-- **POST** `/api/payments/create-payment-link`
+#### Landlord Setup
+- **POST** `/api/payments/create-landlord-account` - Create landlord Connect account
+- **POST** `/api/payments/landlord-onboarding-link` - Get onboarding URL for landlord
+- **GET** `/api/payments/landlord-account/:accountId` - Get landlord account status & balance
+- **POST** `/api/payments/landlord-dashboard-link` - Get landlord dashboard access
+
+#### Rent Payments
+- **POST** `/api/payments/create-rent-payment` - Create rent payment (money goes to landlord)
+
+#### Traditional Payment Links
+- **POST** `/api/payments/create-payment-link` - Create simple payment link
+- **GET** `/api/payments/payment-link/:linkId` - Get payment link details
+- **GET** `/api/payments/payment-links` - List payment links
+- **PATCH** `/api/payments/payment-link/:linkId/deactivate` - Deactivate payment link
+
+### Complete Rent Payment Workflow
+
+#### 1. Create Landlord Account
+- **POST** `/api/payments/create-landlord-account`
 - **Body:**
   ```json
   {
-    "amount": 29.99,
+    "email": "landlord@example.com",
+    "firstName": "John",
+    "lastName": "Smith",
+    "businessName": "Smith Properties LLC",
+    "country": "US"
+  }
+  ```
+
+#### 2. Landlord Completes Onboarding
+- Get onboarding link and have landlord complete Stripe verification
+- **POST** `/api/payments/landlord-onboarding-link`
+- **Body:**
+  ```json
+  {
+    "accountId": "acct_1234567890"
+  }
+  ```
+
+#### 3. Create Rent Payment
+- **POST** `/api/payments/create-rent-payment`
+- **Body:**
+  ```json
+  {
+    "amount": 1200.00,
     "currency": "usd",
-    "description": "Premium subscription",
-    "customerEmail": "customer@example.com",
-    "metadata": {
-      "userId": "12345",
-      "plan": "premium"
-    }
+    "description": "Monthly Rent - December 2024",
+    "landlordAccountId": "acct_1234567890",
+    "tenantEmail": "tenant@example.com",
+    "propertyAddress": "123 Main St, Apt 4B",
+    "rentPeriod": "December 2024",
+    "applicationFeePercentage": 2.9
   }
   ```
 - **Response:**
   ```json
   {
     "success": true,
-    "paymentLink": {
-      "id": "plink_1234567890",
-      "url": "https://buy.stripe.com/test_1234567890",
-      "amount": 29.99,
-      "currency": "usd",
-      "description": "Premium subscription"
+    "rentPayment": {
+      "url": "https://buy.stripe.com/rent_payment_link",
+      "tenantAmount": 1200.00,
+      "landlordReceives": 1165.20,
+      "applicationFee": 34.80
     }
   }
-  ```
-
-#### Get Payment Link Details
-- **GET** `/api/payments/payment-link/:linkId`
-
-#### List Payment Links
-- **GET** `/api/payments/payment-links?limit=10&starting_after=plink_123`
-
-#### Deactivate Payment Link
-- **PATCH** `/api/payments/payment-link/:linkId/deactivate`
+  }
 
 ## Flutter Integration
 

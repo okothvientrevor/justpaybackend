@@ -12,11 +12,20 @@ const PORT = process.env.PORT || 3000;
 // Security middleware
 app.use(helmet());
 
-// CORS configuration for Flutter app
+// CORS configuration for Flutter app and production
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || [
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'https://your-flutter-app.com'
+  ],
   credentials: true
 }));
+
+// Trust proxy for production (important for Render)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
 
 // Logging middleware
 app.use(morgan('combined'));

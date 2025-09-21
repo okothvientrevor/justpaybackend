@@ -1,0 +1,16 @@
+# Render Deployment Configuration
+# This file tells Render how to build and run your application
+
+services:
+  - type: web
+    name: justpay-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    healthCheckPath: /health
